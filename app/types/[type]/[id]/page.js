@@ -7,11 +7,12 @@ const getRecipeDetails = async (id) => {
     `https://www.themealdb.com/api/json/v1/1/lookup.php?i=${id}`
   );
   const response = await res.json();
-  return response.meals[0];
+  return response;
 };
 
 const page = async ({ params }) => {
-  const recipeDetails = await getRecipeDetails(params.id);
+  const details = await getRecipeDetails(params.id);
+  const recipeDetails = details && details.meals ? details.meals[0] : {};
   const ingredients = Object.keys(recipeDetails)
     .filter((key) => key.indexOf("Ingredient") > 0)
     .map((ingKey) => recipeDetails[ingKey])
