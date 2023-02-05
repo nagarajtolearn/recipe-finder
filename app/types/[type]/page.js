@@ -1,19 +1,19 @@
-import RecipeList from "@/components/RecipeList";
-import Image from "next/image";
 import React from "react";
 
-const getRecipes = async (area) => {
+//components
+import RecipeList from "../../../components/RecipeList";
+
+async function getRecipes(type = "indian") {
+  // await new Promise((r) => setTimeout(r, 5000));
   const res = await fetch(
-    `https://www.themealdb.com/api/json/v1/1/filter.php?a=${area}`
+    `https://www.themealdb.com/api/json/v1/1/filter.php?a=${type}`
   );
   const response = await res.json();
-  return response.meals;
-};
+  return response;
+}
 
-const page = async ({ params }) => {
+export default async function RecipeListContainer({ params }) {
   const recipes = await getRecipes(params.type);
 
-  return <RecipeList recipes={recipes} type={params.type} />;
-};
-
-export default page;
+  return <RecipeList recipes={recipes.meals} type={params.type || ""} />;
+}

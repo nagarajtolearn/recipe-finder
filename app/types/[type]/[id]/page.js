@@ -1,70 +1,68 @@
 import Image from "next/image";
-import Link from "next/link";
-import React from "react";
 
-const getRecipeDetails = async (id) => {
+async function getRecipeDetails(id) {
   const res = await fetch(
     `https://www.themealdb.com/api/json/v1/1/lookup.php?i=${id}`
   );
-  const response = await res.json();
-  return response;
-};
+  return res.json();
+}
 
-const page = async ({ params }) => {
-  const details = await getRecipeDetails(params.id);
-  const recipeDetails = details && details.meals ? details.meals[0] : {};
-  const ingredients = Object.keys(recipeDetails)
+export default async function Page({ params }) {
+  const recipeDetails = await getRecipeDetails(params.id);
+  const details =
+    recipeDetails && recipeDetails.meals ? recipeDetails.meals[0] : {};
+  const ingredients = Object.keys(details)
     .filter((key) => key.indexOf("Ingredient") > 0)
-    .map((ingKey) => recipeDetails[ingKey])
+    .map((ingKey) => (details[ingKey]?.length ? details[ingKey] : undefined))
     .filter(Boolean);
-  console.log(ingredients);
+
   return (
     <div className=" grid sm:grid-cols-1 md:grid-cols-2">
       <div className="overflow-hidden">
         <Image
           className=" m-5 rounded-lg"
-          src={recipeDetails.strMealThumb}
+          src={details.strMealThumb}
           alt="recipe-image"
-          width={500}
+          width={600}
           height={500}></Image>
       </div>
       <div className=" bg-slate-300 m-5 p-4 gap-1 rounded-lg">
         <h1>
           Recipe Name:
-          <span className="font-bold"> {recipeDetails.strMeal}</span>
+          <span className="font-bold"> {details.strMeal}</span>
         </h1>
         <h2>
           Category:
-          <span className="font-bold"> {recipeDetails.strCategory}</span>
+          <span className="font-bold"> {details.strCategory}</span>
         </h2>
         <h2>
           Area:
-          <span className="font-bold"> {recipeDetails.strArea}</span>
+          <span className="font-bold"> {details.strArea}</span>
         </h2>
 
         <h2>
           Tags:
-          <span className="font-bold"> {recipeDetails.strTags}</span>
+          <span className="font-bold"> {details.strTags}</span>
         </h2>
         <h2>
           Ingredients List:
           <span className="font-bold ">
-            {" "}
-            {ingredients.map((i, idx) => (
-              <span className="px-1 bg-blue-400 rounded mr-1" key={idx}>
-                {i}
-              </span>
-            ))}{" "}
+            {ingredients &&
+              ingredients.map((i, idx) => (
+                <span className="px-1 bg-blue-400 rounded mr-1" key={idx}>
+                  {i}
+                </span>
+              ))}
           </span>
         </h2>
         <h2 className="mt-3">
           Instructions:
-          <span className="font-bold"> {recipeDetails.strInstructions}</span>
+          <span className="font-bold"> {details.strInstructions}</span>
         </h2>
         <div className="m-10 flex justify-between">
-          {recipeDetails.strYoutube ? (
+          {details.strYoutube ? (
             <a
-              href={recipeDetails.strYoutube}
+              href={details.strYoutube}
               target="_blank"
               className="bg-red-600 text-black p-3 rounded-lg">
               Watch Video
@@ -73,9 +71,9 @@ const page = async ({ params }) => {
             ""
           )}
 
-          {recipeDetails.strSource ? (
+          {details.strSource ? (
             <a
-              href={recipeDetails.strSource}
+              href={details.strSource}
               target="_blank"
               className="bg-indigo-500 text-black p-3 rounded-lg">
               Read More...
@@ -87,6 +85,4 @@ const page = async ({ params }) => {
       </div>
     </div>
   );
-};
-
-export default page;
+}
